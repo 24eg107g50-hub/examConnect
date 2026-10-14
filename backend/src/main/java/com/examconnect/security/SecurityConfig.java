@@ -62,6 +62,8 @@ public class SecurityConfig {
                 .csrf(AbstractHttpConfigurer::disable)
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
+                        // Public frontend assets bundled into the backend image
+                        .requestMatchers("/", "/index.html", "/assets/**", "/favicon.svg", "/icons.svg").permitAll()
                         // Public auth endpoints
                         .requestMatchers("/api/auth/**").permitAll()
                         // Public exploration endpoints (GET only)
