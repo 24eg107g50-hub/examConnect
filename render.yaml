@@ -1,0 +1,27 @@
+services:
+  - type: web
+    name: examconnect
+    runtime: docker
+    plan: free
+    region: oregon
+    dockerfilePath: ./Dockerfile
+    healthCheckPath: /api/questions
+    envVars:
+      - key: DB_HOST
+        sync: false
+      - key: DB_PORT
+        value: "3306"
+      - key: DB_NAME
+        sync: false
+      - key: DB_USER
+        sync: false
+      - key: DB_PASSWORD
+        sync: false
+      - key: JWT_SECRET
+        generateValue: true
+      - key: INITIAL_ADMIN_PASSWORD
+        sync: false
+      - key: INITIAL_ADMIN_EMAIL
+        value: admin@examconnect.com
+      - key: CORS_ALLOWED_ORIGINS
+        value: http://localhost:5173,http://localhost:3000

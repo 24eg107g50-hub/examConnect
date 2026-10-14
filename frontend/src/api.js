@@ -1,13 +1,10 @@
-﻿export async function getQuestions(page = 0, size = 10) {
-  const response = await fetch(
-    `/api/questions?page=${page}&size=${size}`
+import { apiRequest } from './services/api.js';
+
+export async function getQuestions(page = 0, size = 10) {
+  const response = await apiRequest(
+    `/questions?page=${page}&size=${size}`
   );
-
-  if (!response.ok) {
-    throw new Error(`Request failed: ${response.status}`);
-  }
-
-  const result = await response.json();
+  const result = response.data;
   const data = result.data ?? result;
 
   return {

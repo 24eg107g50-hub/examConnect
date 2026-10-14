@@ -1,22 +1,49 @@
+const API_BASE_URL = (import.meta.env.VITE_API_BASE_URL || '/api').replace(/\/+$/, '');
 
-@'
-export async function getQuestions(page = 0, size = 10) {
-  const response = await fetch(
-    `/api/questions?page=${page}&size=${size}`
-  );
+async function request(path, options = {}) {
+  const token = localStorage.getItem('token');
+  const headers = new Headers(options.headers);
 
-  if (!response.ok) {
-    throw new Error(`Request failed: ${response.status}`);
+  if (options.body && !headers.has('Content-Type')) {
+    headers.set('Content-Type', 'application/json');
+  }
+  if (token) {
+    headers.set('Authorization', `Bearer ${token}`);
   }
 
-  const result = await response.json();
-  const data = result.data ?? result;
+  const response = await fetch(`${API_BASE_URL}${path}`, {
+    ...options,
+    headers,
+  });
+  const data = response.status === 204 ? null : await response.json();
 
-  return {
-    questions: data.content ?? data.items ?? data.questions ?? [],
-    totalElements: data.totalElements ?? 0,
-    totalPages: data.totalPages ?? 1,
-    page: data.number ?? data.page ?? page,
-  };
+  if (!response.ok) {
+    if (response.status === 401 && token) {
+      window.dispatchEvent(new Event('auth-expired'));
+    }
+    throw new Error(data?.message || `Request failed: ${response.status}`);
+  }
+
+  return { data };
 }
-'@ | Set-Content -Path .\src\api.js -Encoding utf8
+
+export const authService = {
+  login: (credentials) =>
+    request('/auth/login', {
+      method: 'POST',
+      body: JSON.stringify(credentials),
+    }),
+  register: (userData) =>
+    request('/auth/register', {
+      method: 'POST',
+      body: JSON.stringify(userData),
+    }),
+  getCurrentUser: () => request('/auth/me'),
+};
+
+export const materialService = {
+  toggleBookmark: (materialId) =>
+    request(`/materials/${materialId}/bookmark`, { method: 'POST' }),
+};
+
+export const apiRequest = request;
