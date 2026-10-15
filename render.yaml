@@ -24,4 +24,4 @@ services:
       - key: INITIAL_ADMIN_EMAIL
         value: admin@examconnect.com
       - key: CORS_ALLOWED_ORIGINS
-        value: http://localhost:5173,http://localhost:3000
+        value: http://localhost:5173,http://localhost:3000,https://marvelous-longma-3ae1ee.netlify.app
