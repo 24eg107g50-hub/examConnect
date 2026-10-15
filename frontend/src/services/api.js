@@ -1,4 +1,7 @@
-const API_BASE_URL = (import.meta.env.VITE_API_BASE_URL || '/api').replace(/\/+$/, '');
+const defaultApiBaseUrl = window.location.hostname.endsWith('.netlify.app')
+  ? 'https://examconnect-da6c.onrender.com/api'
+  : '/api';
+const API_BASE_URL = (import.meta.env.VITE_API_BASE_URL || defaultApiBaseUrl).replace(/\/+$/, '');
 
 async function request(path, options = {}) {
   const token = localStorage.getItem('token');
@@ -15,13 +18,25 @@ async function request(path, options = {}) {
     ...options,
     headers,
   });
-  const data = response.status === 204 ? null : await response.json();
+  const contentType = response.headers.get('Content-Type') || '';
+  const isJson = contentType.includes('application/json') || contentType.includes('+json');
+  const data = response.status === 204
+    ? null
+    : isJson
+      ? await response.json()
+      : await response.text();
 
   if (!response.ok) {
     if (response.status === 401 && token) {
       window.dispatchEvent(new Event('auth-expired'));
     }
-    throw new Error(data?.message || `Request failed: ${response.status}`);
+    throw new Error(
+      (isJson && data?.message) ||
+      `Request failed: ${response.status}${isJson ? '' : ' (API returned a non-JSON response; check the API URL)'}`
+    );
+  }
+  if (!isJson && response.status !== 204) {
+    throw new Error('API returned a non-JSON response; check the API URL.');
   }
 
   return { data };
