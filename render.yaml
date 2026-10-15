@@ -10,7 +10,9 @@ services:
       - key: DB_HOST
         sync: false
       - key: DB_PORT
-        value: "3306"
+        value: "11757"
+      - key: DB_SSL_MODE
+        value: REQUIRED
       - key: DB_NAME
         sync: false
       - key: DB_USER

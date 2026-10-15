@@ -26,6 +26,8 @@ Set `DB_USER`, `DB_PASSWORD`, `JWT_SECRET` (at least 32 random bytes), and
 application. The values in `backend/.env.example` are intentionally blank for
 secrets; Spring Boot does not load `.env` files automatically. Keep real values
 in your local environment or deployment provider's secret settings, not in Git.
+`DB_SSL_MODE` defaults to `PREFERRED` for local development; use `REQUIRED` for
+managed databases that require TLS.
 
 ### Deploying the full-stack app to Render
 
@@ -35,6 +37,8 @@ same-origin. In Render, create a Blueprint from this repository and provide the
 MySQL host, database name, username, password, and a strong initial admin
 password when prompted. Set `DB_HOST`, `DB_NAME`, `DB_USER`, and `DB_PASSWORD`
 to the values from your hosted MySQL provider; Render generates `JWT_SECRET`.
+For Aiven MySQL, use the service's hostname and port (commonly `11757`),
+database/user from its connection details, and set `DB_SSL_MODE` to `REQUIRED`.
 Allow the Render service to connect to your MySQL server before deploying.
 Flyway applies the database migrations when the service starts.
 
